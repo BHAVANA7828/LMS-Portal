@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS Academy - Course Certification Exam</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f8fafc; color: #1e293b; display: flex; min-height: 100vh; }
+        
+        .sidebar { width: 260px; background-color: #ffffff; border-right: 1px solid #e2e8f0; padding: 24px; display: flex; flex-direction: column; }
+        .brand-title { font-size: 1.6rem; font-weight: 700; color: #4f46e5; margin-bottom: 32px; text-decoration: none; }
+        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .nav-item a { text-decoration: none; color: #475569; padding: 12px 16px; border-radius: 8px; font-weight: 600; display: block; transition: all 0.2s; }
+        .nav-item a:hover, .nav-item.active a { background-color: #4f46e5; color: #ffffff; }
+        
+        .main-content { flex: 1; padding: 32px; overflow-y: auto; }
+        .header { border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Selector Box */
+        .course-selector-box { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; }
+        .course-select-dropdown { padding: 10px 14px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.95rem; font-weight: 600; color: #1e293b; outline: none; flex: 1; }
+
+        /* Exam Intro Card */
+        .exam-intro-box { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 28px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .exam-info-pills { display: flex; gap: 12px; margin: 16px 0; }
+        .pill { background: #e0e7ff; color: #4f46e5; font-weight: 700; font-size: 0.8rem; padding: 6px 12px; border-radius: 20px; }
+        
+        /* Interactive Exam Workspace */
+        .exam-workspace { display: none; gap: 24px; }
+        .question-card { flex: 1; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 28px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        
+        .question-text { font-size: 1.1rem; font-weight: 600; color: #0f172a; margin-bottom: 20px; line-height: 1.5; }
+        .options-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+        
+        .option-item { border: 1px solid #cbd5e1; border-radius: 8px; padding: 14px 18px; cursor: pointer; font-weight: 500; transition: all 0.2s; display: flex; align-items: center; gap: 12px; }
+        .option-item:hover { background-color: #f1f5f9; border-color: #94a3b8; }
+        .option-item.selected { background-color: #e0e7ff; border-color: #4f46e5; color: #4f46e5; font-weight: 700; }
+        
+        /* Question Palette Navigation */
+        .palette-card { width: 300px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; height: fit-content; }
+        .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-height: 380px; overflow-y: auto; padding-right: 4px; margin-top: 12px; }
+        .palette-btn { border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 6px; padding: 8px 0; font-size: 0.8rem; font-weight: 600; cursor: pointer; text-align: center; }
+        .palette-btn.active { border-color: #4f46e5; background: #4f46e5; color: white; }
+        .palette-btn.answered { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+
+        /* Controls */
+        .btn-action { background-color: #4f46e5; color: white; padding: 10px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn-action:hover { background-color: #4338ca; }
+        .btn-secondary { background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
+
+        /* Result View */
+        .result-card { display: none; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 32px; text-align: center; }
+        .score-circle { width: 120px; height: 120px; border-radius: 50%; background: #e0e7ff; color: #4f46e5; font-size: 2.2rem; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 20px auto; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <h2 class="brand-title">LMS Academy</h2>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="index.html">Dashboard</a></li>
+            <li class="nav-item"><a href="course-detail.html">Courses</a></li>
+            <li class="nav-item active"><a href="exam.html">Exams</a></li>
+            <li class="nav-item"><a href="compiler.html">Compiler</a></li>
+            <li class="nav-item"><a href="login.html">Logout</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <div class="header">
+            <h2>Course Certification Exams</h2>
+            <span style="font-weight: 600; color: #64748b;">100 Questions / Exam</span>
+        </div>
+
+        <!-- Course Selector -->
+        <div class="course-selector-box" id="selector-container">
+            <label for="course-select" style="font-weight: 700;">Select Course Exam:</label>
+            <select id="course-select" class="course-select-dropdown" onchange="changeCourseExam(this.value)">
+                <!-- Dynamically populated with all 20 courses -->
+            </select>
+        </div>
+
+        <!-- Initial Start View -->
+        <div class="exam-intro-box" id="intro-view">
+            <h3 id="exam-target-title">Course Certification Examination</h3>
+            <p style="color: #64748b; margin-top: 8px;" id="exam-target-desc">Complete all 100 questions to earn your official verified completion certificate.</p>
+            
+            <div class="exam-info-pills">
+                <span class="pill">100 Questions</span>
+                <span class="pill">Passing Threshold: 70%</span>
+                <span class="pill">Instant Verification</span>
+            </div>
+
+            <button class="btn-action" onclick="startExam()">Begin 100-Question Exam</button>
+        </div>
+
+        <!-- Active Exam Workspace -->
+        <div class="exam-workspace" id="exam-workspace">
+            <div class="question-card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+                    <span style="font-weight: 700; color: #4f46e5;" id="q-number-title">Question 1 of 100</span>
+                    <span style="font-size: 0.85rem; color: #64748b;" id="active-course-label">Course Title</span>
+                </div>
+                
+                <div class="question-text" id="q-text">Loading question...</div>
+                
+                <div class="options-list" id="options-container"></div>
+
+                <div style="display: flex; justify-content: space-between; margin-top: 24px;">
+                    <button class="btn-action btn-secondary" onclick="prevQuestion()" id="btn-prev">← Previous</button>
+                    <button class="btn-action" onclick="nextQuestion()" id="btn-next">Next Question →</button>
+                </div>
+            </div>
+
+            <!-- Question Palette -->
+            <div class="palette-card">
+                <h4>Question Navigation</h4>
+                <div class="palette-grid" id="palette-grid"></div>
+                <button class="btn-action" style="width: 100%; margin-top: 20px; background-color: #16a34a;" onclick="submitExam()">Submit Final Answers</button>
+            </div>
+        </div>
+
+        <!-- Result View -->
+        <div class="result-card" id="result-view">
+            <h2 id="result-status-title">Exam Submitted!</h2>
+            <div class="score-circle" id="score-percentage">0%</div>
+            <p id="result-detail-text" style="color: #64748b; font-size: 1.1rem; margin-bottom: 24px;"></p>
+            <a href="index.html" class="btn-action" style="text-decoration: none; display: inline-block;">Return to Dashboard</a>
+        </div>
+    </main>
+
+    <script>
+        const allCourses = [
+            { id: "java-21", title: "1. Mastering Java 21 & Spring Boot 3", tag: "Java 21, Spring Boot, Dependency Injection, JPA & Hibernate" },
+            { id: "python-dev", title: "2. Complete Python 3 Developer Bootcamp", tag: "Python Syntax, Data Structures, OOP, Decorators & Generators" },
+            { id: "react-js", title: "3. React 18 & Redux Toolkit Masterclass", tag: "React Components, Virtual DOM, Hooks, Redux State Management" },
+            { id: "node-express", title: "4. Node.js, Express & MongoDB Architecture", tag: "Event Loop, REST APIs, Mongoose Schemas, Middleware" },
+            { id: "docker-k8s", title: "5. Docker & Kubernetes DevOps Engineering", tag: "Containerization, Pods, Services, Deployments, CI/CD" },
+            { id: "sql-db", title: "6. Database Design & SQL Optimization", tag: "Normalization, Indexing, Transactions, Query Plans" },
+            { id: "data-structures", title: "7. Data Structures & Algorithms in Java", tag: "Time Complexity, Trees, Graphs, Dynamic Programming" },
+            { id: "aws-cloud", title: "8. AWS Certified Solutions Architect", tag: "EC2, S3, VPC, IAM, CloudFront, Lambda" },
+            { id: "system-design", title: "9. System Design & Scalable Architecture", tag: "Load Balancing, Caching, Sharding, Microservices" },
+            { id: "next-js", title: "10. Full-Stack Web App Development with Next.js", tag: "Server Components, App Router, SSR, SSG, API Routes" },
+            { id: "flutter-mobile", title: "11. Mobile App Development with Flutter", tag: "Dart Syntax, Widgets, State Management, Navigation" },
+            { id: "golang-microservices", title: "12. Go Programming & High-Performance Microservices", tag: "Goroutines, Channels, Structs, gRPC Interfaces" },
+            { id: "cyber-security", title: "13. Ethical Hacking & Cyber Security", tag: "OWASP Top 10, Cryptography, Penetration Testing" },
+            { id: "machine-learning", title: "14. Applied Machine Learning with Python", tag: "Regression, Classification, Neural Networks, PyTorch" },
+            { id: "cpp-game", title: "15. Modern C++ & Game Engine Foundations", tag: "Pointers, Memory Allocation, Game Loops, Renderers" },
+            { id: "typescript-pro", title: "16. Advanced TypeScript Masterclass", tag: "Generics, Utility Types, Type Guards, Compiler Configuration" },
+            { id: "graphql-api", title: "17. Building APIs with GraphQL and Apollo", tag: "Schemas, Resolvers, Mutations, Subscriptions" },
+            { id: "rust-lang", title: "18. Systems Programming with Rust", tag: "Ownership, Borrowing, Lifetimes, Cargo Management" },
+            { id: "git-github", title: "19. Git & GitHub Workflows for Teams", tag: "Branching Strategies, Merge Conflicts, Rebase, Actions" },
+            { id: "prompt-engineering", title: "20. Generative AI & LLM Application Development", tag: "Prompt Design, RAG Pipelines, Vector Databases, Embeddings" }
+        ];
+
+        let selectedCourseIdx = 0;
+        let generatedQuestions = [];
+        let currentQuestionIdx = 0;
+        let userAnswers = new Array(100).fill(null);
+
+        // Parse URL parameter on load
+        function initPage() {
+            const selectEl = document.getElementById('course-select');
+            selectEl.innerHTML = '';
+            
+            allCourses.forEach((c, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = c.title;
+                selectEl.appendChild(opt);
+            });
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const paramCourse = urlParams.get('course');
+            if (paramCourse !== null && !isNaN(paramCourse) && paramCourse < allCourses.length) {
+                selectedCourseIdx = parseInt(paramCourse);
+            }
+
+            selectEl.value = selectedCourseIdx;
+            setupExamForCourse(selectedCourseIdx);
+        }
+
+        function changeCourseExam(idx) {
+            selectedCourseIdx = parseInt(idx);
+            setupExamForCourse(selectedCourseIdx);
+        }
+
+        function setupExamForCourse(idx) {
+            const course = allCourses[idx];
+            document.getElementById('exam-target-title').textContent = `${course.title} - Final Exam`;
+            document.getElementById('exam-target-desc').textContent = `100 targeted certification questions covering core topics: ${course.tag}.`;
+            document.getElementById('active-course-label').textContent = course.title;
+
+            // Generate 100 Course-Specific Questions
+            const tagsList = course.tag.split(', ');
+            generatedQuestions = [];
+            for (let i = 1; i <= 100; i++) {
+                const topicConcept = tagsList[(i - 1) % tagsList.length];
+                generatedQuestions.push({
+                    id: i,
+                    question: `Q${i}. [${topicConcept}] Regarding ${topicConcept} in ${course.title.split('. ')[1]}, which statement represents optimal best practice?`,
+                    options: [
+                        `Utilize standardized architecture designed to optimize runtime thread safety and efficiency.`,
+                        `Apply isolated scope patterns to prevent unexpected memory allocation or leakage.`,
+                        `Enforce modular boundaries according to standard production design patterns.`,
+                        `Leverage native framework APIs to minimize unnecessary overhead during execution.`
+                    ],
+                    correctIndex: (i % 4)
+                });
+            }
+            userAnswers = new Array(100).fill(null);
+        }
+
+        function startExam() {
+            document.getElementById('selector-container').style.display = 'none';
+            document.getElementById('intro-view').style.display = 'none';
+            document.getElementById('exam-workspace').style.display = 'flex';
+            buildPalette();
+            loadQuestion(0);
+        }
+
+        function buildPalette() {
+            const grid = document.getElementById('palette-grid');
+            grid.innerHTML = '';
+            for (let i = 0; i < 100; i++) {
+                const btn = document.createElement('button');
+                btn.className = `palette-btn ${userAnswers[i] !== null ? 'answered' : ''} ${i === currentQuestionIdx ? 'active' : ''}`;
+                btn.textContent = i + 1;
+                btn.onclick = () => {
+                    loadQuestion(i);
+                };
+                grid.appendChild(btn);
+            }
+        }
+
+        function loadQuestion(idx) {
+            currentQuestionIdx = idx;
+            const q = generatedQuestions[idx];
+            
+            document.getElementById('q-number-title').textContent = `Question ${idx + 1} of 100`;
+            document.getElementById('q-text').textContent = q.question;
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            q.options.forEach((optText, optIdx) => {
+                const optDiv = document.createElement('div');
+                const isSelected = userAnswers[idx] === optIdx;
+                optDiv.className = `option-item ${isSelected ? 'selected' : ''}`;
+                optDiv.innerHTML = `<span>${String.fromCharCode(65 + optIdx)}.</span> <span>${optText}</span>`;
+                
+                optDiv.onclick = () => {
+                    userAnswers[idx] = optIdx;
+                    loadQuestion(idx);
+                    buildPalette();
+                };
+                
+                container.appendChild(optDiv);
+            });
+
+            document.getElementById('btn-prev').style.visibility = (idx === 0) ? 'hidden' : 'visible';
+            document.getElementById('btn-next').textContent = (idx === 99) ? 'Review Final Q →' : 'Next Question →';
+            buildPalette();
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIdx < 99) {
+                loadQuestion(currentQuestionIdx + 1);
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIdx > 0) {
+                loadQuestion(currentQuestionIdx - 1);
+            }
+        }
+
+        function submitExam() {
+            const answeredCount = userAnswers.filter(a => a !== null).length;
+            if (answeredCount < 100) {
+                if (!confirm(`You have answered ${answeredCount} of 100 questions. Are you sure you want to submit?`)) {
+                    return;
+                }
+            }
+
+            let score = 0;
+            generatedQuestions.forEach((q, idx) => {
+                if (userAnswers[idx] === q.correctIndex) {
+                    score++;
+                }
+            });
+
+            const pct = Math.round((score / 100) * 100);
+            
+            // Save course exam score to localStorage
+            const courseId = allCourses[selectedCourseIdx].id;
+            let savedExams = JSON.parse(localStorage.getItem('lms_completed_course_exams') || '{}');
+            savedExams[courseId] = { score: pct, passed: pct >= 70, date: new Date().toLocaleDateString() };
+            localStorage.setItem('lms_completed_course_exams', JSON.stringify(savedExams));
+
+            // Render Results
+            document.getElementById('exam-workspace').style.display = 'none';
+            const resultView = document.getElementById('result-view');
+            resultView.style.display = 'block';
+
+            document.getElementById('score-percentage').textContent = `${pct}%`;
+            if (pct >= 70) {
+                document.getElementById('result-status-title').textContent = `🎉 Certificate Earned for ${allCourses[selectedCourseIdx].title}!`;
+                document.getElementById('result-detail-text').textContent = `You scored ${score}/100. Your completion has been officially logged in your academy record.`;
+            } else {
+                document.getElementById('result-status-title').textContent = "Exam Attempt Complete";
+                document.getElementById('result-detail-text').textContent = `You scored ${score}/100. A score of 70% or higher is required to earn certification.`;
+            }
+        }
+
+        window.onload = initPage;
+    </script>
+</body>
+</html>

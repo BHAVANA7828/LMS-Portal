@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS Academy - Admin Progress Tracker</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: #1e293b;
+            padding: 24px;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #ffffff;
+            padding: 18px 24px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .admin-title h1 {
+            font-size: 1.5rem;
+            color: #0f172a;
+        }
+
+        .admin-title p {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .btn-nav {
+            background-color: #4f46e5;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+
+        .btn-nav:hover {
+            background-color: #4338ca;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            padding: 16px 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .card-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 6px;
+        }
+
+        .controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .course-select-admin {
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            font-weight: 600;
+            font-size: 0.9rem;
+            background-color: #ffffff;
+            color: #1e293b;
+            min-width: 320px;
+        }
+
+        .search-input {
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.9rem;
+            width: 250px;
+        }
+
+        .table-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            overflow-x: auto;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: #475569;
+            padding: 12px 16px;
+            font-weight: 600;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .progress-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .progress-bar-bg {
+            flex: 1;
+            background-color: #e2e8f0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 100px;
+        }
+
+        .progress-bar-fill {
+            background-color: #16a34a;
+            height: 100%;
+            width: 0%;
+        }
+
+        .badge-status {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .status-completed {
+            background-color: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-progress {
+            background-color: #fef3c7;
+            color: #b45309;
+        }
+
+        .status-notstarted {
+            background-color: #f1f5f9;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="admin-header">
+        <div class="admin-title">
+            <h1>👨‍🏫 Teacher / Admin Dashboard</h1>
+            <p>Real-Time Student Progress & Completion Tracker</p>
+        </div>
+        <a href="course-detail.html" class="btn-nav">← Back to Course Classroom</a>
+    </header>
+
+    <div class="metrics-grid">
+        <div class="card">
+            <div class="card-label">Active Users Tracked</div>
+            <div class="card-value" id="metric-students">0</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Selected Course</div>
+            <div class="card-value" id="metric-course-name" style="font-size: 1.05rem; color:#4f46e5;">1. Mastering Java 21 & Spring Boot 3</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Class Average Completion</div>
+            <div class="card-value" id="metric-avg-completion">0%</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Top Performer</div>
+            <div class="card-value" id="metric-top-student" style="font-size: 1.05rem; color:#16a34a;">None</div>
+        </div>
+    </div>
+
+    <div class="controls-bar">
+        <div>
+            <label for="course-filter" style="font-size: 0.85rem; font-weight:700; color:#475569;">Filter Course: </label>
+            <select id="course-filter" class="course-select-admin" onchange="loadRealStudentProgress(this.value)">
+                <option value="java-21">1. Mastering Java 21 & Spring Boot 3</option>
+                <option value="python-dev">2. Complete Python 3 Developer Bootcamp</option>
+                <option value="react-js">3. React 18 & Redux Toolkit Masterclass</option>
+                <option value="node-express">4. Node.js, Express & MongoDB Architecture</option>
+                <option value="docker-k8s">5. Docker & Kubernetes DevOps Engineering</option>
+                <option value="sql-db">6. Database Design & SQL Optimization</option>
+                <option value="data-structures">7. Data Structures & Algorithms in Java</option>
+                <option value="aws-cloud">8. AWS Certified Solutions Architect</option>
+                <option value="system-design">9. System Design & Scalable Architecture</option>
+                <option value="next-js">10. Full-Stack Web App Development with Next.js</option>
+                <option value="flutter-mobile">11. Mobile App Development with Flutter & Dart</option>
+                <option value="golang-microservices">12. Go Programming & High-Performance Microservices</option>
+                <option value="cyber-security">13. Ethical Hacking & Cyber Security Fundamentals</option>
+                <option value="machine-learning">14. Applied Machine Learning with Python & PyTorch</option>
+                <option value="cpp-game">15. Modern C++ & Game Engine Foundations</option>
+                <option value="typescript-pro">16. Advanced TypeScript Masterclass</option>
+                <option value="graphql-api">17. Building APIs with GraphQL and Apollo Server</option>
+                <option value="rust-lang">18. Systems Programming with Rust</option>
+                <option value="git-github">19. Git & GitHub Workflows for Teams</option>
+                <option value="prompt-engineering">20. Generative AI & LLM Application Development</option>
+            </select>
+        </div>
+        <input type="text" id="search-input" class="search-input" placeholder="Search student name..." onkeyup="filterStudents()">
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Completed Modules</th>
+                    <th>Progress Bar</th>
+                    <th>Status</th>
+                    <th>Last Active</th>
+                </tr>
+            </thead>
+            <tbody id="student-table-body">
+                <!-- Live data from localStorage will be populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const totalModules = 20;
+
+        function getRegisteredUsers() {
+            const currentUser = localStorage.getItem('currentUser') || 'John Doe';
+            let users = JSON.parse(localStorage.getItem('allUsers')) || ['John Doe', 'Alex Smith', 'Emma Watson'];
+            
+            if (!users.includes(currentUser)) {
+                users.push(currentUser);
+                localStorage.setItem('allUsers', JSON.stringify(users));
+            }
+            return users;
+        }
+
+        function loadRealStudentProgress(courseId) {
+            const tbody = document.getElementById('student-table-body');
+            tbody.innerHTML = '';
+
+            const users = getRegisteredUsers();
+            let totalPercentSum = 0;
+            let topStudentName = "None";
+            let topStudentPct = -1;
+            let activeUserCount = users.length;
+
+            users.forEach((username) => {
+                const storageKey = `progress_${username}_${courseId}`;
+                const savedModules = JSON.parse(localStorage.getItem(storageKey)) || [];
+                
+                const completed = savedModules.length;
+                const percentage = Math.round((completed / totalModules) * 100);
+                totalPercentSum += percentage;
+
+                if (percentage > topStudentPct && percentage > 0) {
+                    topStudentPct = percentage;
+                    topStudentName = `${username} (${percentage}%)`;
+                }
+
+                const rawDate = localStorage.getItem(`lastActive_${username}`);
+                const lastActive = rawDate ? new Date(rawDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Never';
+
+                let statusBadge = `<span class="badge-status status-progress">In Progress</span>`;
+                if (percentage === 100) {
+                    statusBadge = `<span class="badge-status status-completed">Completed</span>`;
+                } else if (percentage === 0) {
+                    statusBadge = `<span class="badge-status status-notstarted">Not Started</span>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = 'student-row';
+                tr.innerHTML = `
+                    <td class="student-name"><strong>${username}</strong></td>
+                    <td>${completed} / ${totalModules} Modules</td>
+                    <td>
+                        <div class="progress-box">
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" style="width: ${percentage}%;"></div>
+                            </div>
+                            <span style="font-weight:600; font-size:0.8rem;">${percentage}%</span>
+                        </div>
+                    </td>
+                    <td>${statusBadge}</td>
+                    <td style="color:#64748b; font-size:0.85rem;">${lastActive}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            const avgPct = activeUserCount > 0 ? Math.round(totalPercentSum / activeUserCount) : 0;
+            document.getElementById('metric-students').textContent = activeUserCount;
+            document.getElementById('metric-avg-completion').textContent = `${avgPct}%`;
+            document.getElementById('metric-top-student').textContent = topStudentName;
+            
+            const selectEl = document.getElementById('course-filter');
+            document.getElementById('metric-course-name').textContent = selectEl.options[selectEl.selectedIndex].text;
+        }
+
+        function filterStudents() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('.student-row');
+
+            rows.forEach(row => {
+                const name = row.querySelector('.student-name').textContent.toLowerCase();
+                if (name.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRealStudentProgress('java-21');
+        });
+    </script>
+</body>
+</html>

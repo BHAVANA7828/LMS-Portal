@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS Academy - Sign In</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f8fafc; color: #1e293b; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .auth-card { background-color: #ffffff; border-radius: 12px; padding: 40px 32px; width: 100%; max-width: 440px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08); border: 1px solid #e2e8f0; }
+        .brand-header { text-align: center; margin-bottom: 24px; }
+        .brand-title { font-size: 1.8rem; font-weight: 700; color: #4f46e5; }
+        .brand-subtitle { font-size: 0.875rem; color: #64748b; margin-top: 6px; }
+        .tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 24px; }
+        .tab { flex: 1; padding: 12px; text-align: center; background: none; border: none; color: #64748b; font-weight: 600; font-size: 0.95rem; cursor: pointer; text-decoration: none; }
+        .tab.active { color: #4f46e5; border-bottom: 2px solid #4f46e5; margin-bottom: -2px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px; color: #334155; }
+        .form-group input { width: 100%; padding: 12px 14px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; outline: none; }
+        .form-group input:focus { border-color: #4f46e5; background-color: #ffffff; }
+        .btn-submit { width: 100%; padding: 12px; background-color: #4f46e5; color: #ffffff; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 8px; }
+        .btn-submit:hover { background-color: #4338ca; }
+        .message-box { padding: 12px; margin-bottom: 15px; border-radius: 6px; display: none; font-size: 0.9rem; text-align: center; }
+        .success { background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .error { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+    </style>
+</head>
+<body>
+
+    <div class="auth-card">
+        <div class="brand-header">
+            <h1 class="brand-title">LMS Academy</h1>
+            <p class="brand-subtitle">The world's largest developer learning platform</p>
+        </div>
+
+        <div class="tabs">
+            <a href="login.html" class="tab active">Sign In</a>
+            <a href="register.html" class="tab">Create Account</a>
+        </div>
+
+        <div id="msgBox" class="message-box"></div>
+
+        <form id="loginForm" autocomplete="off">
+            <div class="form-group">
+                <label for="emailInput">Email Address</label>
+                <input type="email" id="emailInput" placeholder="Enter your registered email" required autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label for="passwordInput">Password</label>
+                <input type="password" id="passwordInput" placeholder="Enter your password" required autocomplete="off">
+            </div>
+
+            <button type="submit" class="btn-submit">Sign In</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            
+            const msgBox = document.getElementById("msgBox");
+            const emailVal = document.getElementById("emailInput").value.trim().toLowerCase();
+            const passwordVal = document.getElementById("passwordInput").value;
+
+            if (!emailVal || !passwordVal) {
+                showError("Please enter both email and password.");
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/users/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: emailVal, username: emailVal, password: passwordVal })
+                });
+
+                let result = {};
+                try { result = await response.json(); } catch(err) {}
+
+                if (response.ok) {
+                    // Normalize user identity object across all response formats
+                    const userObj = {
+                        name: result.name || result.username || (result.user ? result.user.name : emailVal.split('@')[0]),
+                        email: emailVal,
+                        token: result.token || "valid-user-session"
+                    };
+
+                    // Store in localStorage for index.html compatibility
+                    localStorage.setItem("currentUser", JSON.stringify(userObj));
+
+                    msgBox.className = "message-box success";
+                    msgBox.innerText = "Login successful! Entering LMS Dashboard...";
+                    msgBox.style.display = "block";
+                    
+                    setTimeout(() => {
+                        window.location.replace("index.html");
+                    }, 400);
+                } else {
+                    showError(result.message || "Invalid credentials. Please try again.");
+                }
+            } catch (err) {
+                console.error("Login fetch error:", err);
+                showError("Unable to connect to server.");
+            }
+        });
+
+        function showError(msg) {
+            const msgBox = document.getElementById("msgBox");
+            msgBox.className = "message-box error";
+            msgBox.innerText = msg;
+            msgBox.style.display = "block";
+        }
+    </script>
+</body>
+</html>
